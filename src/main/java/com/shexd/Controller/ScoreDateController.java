@@ -38,7 +38,7 @@ public class ScoreDateController {
    }
    
    public static List<ScoreDataTwo> getScoreList() {
-	   String pathname = "I:\\football\\ScoreData.txt";
+	   String pathname = "F:\\coco\\ScoreData.txt";
        List<ScoreDataTwo> scoreList=new ArrayList<>();
        int count = 0;
        
