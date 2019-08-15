@@ -31,7 +31,7 @@ public class ScoreDateController {
    public void exportScore(HttpServletResponse response){
        try {
            String fileName ="Football Score"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
-           List<ScoreDataTwo> scoreDataList =	getScoreList();                      
+           List<ScoreDataTwo> scoreDataList =	getNewScoreList();                      
            new ExportExcel(DateUtils.getDate("yyyy") + "Football Score", ScoreDataTwo.class,2).setDataList(scoreDataList).write(response, fileName).dispose();
        } catch (Exception e) {
        }
@@ -61,8 +61,8 @@ public class ScoreDateController {
            	   score.setHomeOdd(splitStr[7]);
            	   score.setPingOdd(splitStr[8]);
            	   score.setGuestOdd(splitStr[9]);           	   
-           	   score.setGdCount(getGdCount(splitStr[4]));
-           	   score.setWinningLosingTheGame(getWinningLosingTheGame(splitStr[4]));
+           	   score.setGdCount(getGdCount(score));
+           	   score.setWinningLosingTheGame(getWinningLosingTheGame(score));
            	   score.setWinningLosingTheGameOdd(getWinningLosingTheGameOdd(score));
            	   score.setGoalsResult(getGoalsResult(score));
            	   score.setHalfFullResult(getHalfFullResult(score));
@@ -78,13 +78,55 @@ public class ScoreDateController {
        return scoreList;      
    }
 
+   public static List<ScoreDataTwo> getNewScoreList() {
+	   String pathname = "F:\\coco\\ScoreData.txt";
+       List<ScoreDataTwo> scoreList=new ArrayList<>();
+       int count = 0;
+       
+       try (FileReader reader = new FileReader(pathname);
+            BufferedReader br = new BufferedReader(reader)
+       ) {
+           String line;            
+           while ((line = br.readLine()) != null) {
+        	   count++;
+        	   System.out.println(count);
+        	   ScoreDataTwo score = new ScoreDataTwo();          	          		            		
+           	   String[] splitStr = line.trim().split(",");
+           	   score.setRaceDate(splitStr[0]);
+           	   score.setRaceTime(splitStr[1]);
+           	   score.setRaceRound(splitStr[2]);
+           	   score.setHomeTeam(splitStr[3]);
+           	   score.setGueatTeam(splitStr[6]);
+           	   score.setHalfCourtScore(splitStr[4]);
+           	   score.setFullCourtScore(splitStr[5]);
+           	   score.setHomeOdd(splitStr[8]);
+           	   score.setPingOdd(splitStr[9]);
+           	   score.setGuestOdd(splitStr[10]);           	   
+           	   score.setGdCount(getGdCount(score));
+           	   score.setWinningLosingTheGame(getWinningLosingTheGame(score));
+           	   score.setWinningLosingTheGameOdd(getWinningLosingTheGameOdd(score));
+           	   score.setGoalsResult(getGoalsResult(score));
+           	   score.setHalfFullResult(getHalfFullResult(score));
+           	   score.setHomeGuestWin(getHomeGuestWin(score));
+           	   score.setZeroSealDoubleEntry(getZeroSealDoubleEntry(score));
+           	   score.setSingleWinDoubleEntry(getSingleWinDoubleEntry(score));           
+           	   scoreList.add(score);
+           }  
+           System.out.println("count==="+count);
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+       return scoreList;      
+   }
+   
+   
    /**
     * 获得净胜球数
     * @param gdCount
     * @return
     */
-	private static String getGdCount(String fullScore) {
-		String[] splitFullScore = fullScore.split(":");
+	private static String getGdCount(ScoreDataTwo score) {
+		String[] splitFullScore = score.getFullCourtScore().split(":");
     	int homeCourtScore = Integer.parseInt(splitFullScore[0]);
     	int guestCourtScore = Integer.parseInt(splitFullScore[1]);
     	String gdCount = StringUtils.EMPTY;
@@ -100,9 +142,9 @@ public class ScoreDateController {
 		return gdCount;
 	}
    
-    private static String getWinningLosingTheGame (String fullScore) {
+    private static String getWinningLosingTheGame (ScoreDataTwo score) {
     	String parseStr =  StringUtils.EMPTY;
-		String[] splitScore = fullScore.split(":");
+		String[] splitScore = score.getFullCourtScore().split(":");
     	int homeScore = Integer.parseInt(splitScore[0]);
     	int guestScore = Integer.parseInt(splitScore[1]);
     	
