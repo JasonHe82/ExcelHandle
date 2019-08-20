@@ -68,7 +68,9 @@ public class ScoreDateController {
            	   score.setHalfFullResult(getHalfFullResult(score));
            	   score.setHomeGuestWin(getHomeGuestWin(score));
            	   score.setZeroSealDoubleEntry(getZeroSealDoubleEntry(score));
-           	   score.setSingleWinDoubleEntry(getSingleWinDoubleEntry(score));           
+           	   score.setSingleWinDoubleEntry(getSingleWinDoubleEntry(score));  
+           	   score.setSizesBallsFirst(splitStr[11]);
+           	   score.setSizesBalls(splitStr[12]);
            	   scoreList.add(score);
            }  
            System.out.println("count==="+count);
@@ -109,7 +111,10 @@ public class ScoreDateController {
            	   score.setHalfFullResult(getHalfFullResult(score));
            	   score.setHomeGuestWin(getHomeGuestWin(score));
            	   score.setZeroSealDoubleEntry(getZeroSealDoubleEntry(score));
-           	   score.setSingleWinDoubleEntry(getSingleWinDoubleEntry(score));           
+           	   score.setSingleWinDoubleEntry(getSingleWinDoubleEntry(score));   
+         	   score.setSizesBallsFirst(splitStr[11]);
+           	   score.setSizesBalls(splitStr[12]);
+           	   score.setLeagueName(splitStr[13]);
            	   scoreList.add(score);
            }  
            System.out.println("count==="+count);

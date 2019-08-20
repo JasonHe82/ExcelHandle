@@ -67,54 +67,72 @@ public class ScoreDataTwo {
 	@ExcelField(title="全场胜负平赔率", align=2, sort=10)
     private String winningLosingTheGameOdd;
 	
+    /**
+	 * 大小球初盘
+	 */
+	@ExcelField(title="大小球初盘", align=2, sort=11)
+    private String sizesBallsFirst;
+	
+    /**
+	 * 大小球
+	 */
+	@ExcelField(title="大小球", align=2, sort=12)
+    private String sizesBalls;
+	
 	
     /**
 	 * 总进球数彩果
 	 */
-	@ExcelField(title="总进球数彩果", align=2, sort=11)
+	@ExcelField(title="总进球数彩果", align=2, sort=13)
     private String goalsResult;
 	    	
     /**
 	 * 半全场彩果
 	 */
-	@ExcelField(title="半全场彩果", align=2, sort=12)
+	@ExcelField(title="半全场彩果", align=2, sort=14)
     private String halfFullResult;
 	
 	/**
 	 * 主客队胜平负
 	 */
-	@ExcelField(title="主客队胜平负", align=2, sort=13)
+	@ExcelField(title="主客队胜平负", align=2, sort=15)
     private String homeGuestWin;
 	
 	/**
 	 * 零封双进
 	 */
-	@ExcelField(title="零封双进", align=2, sort=14)
+	@ExcelField(title="零封双进", align=2, sort=16)
     private String zeroSealDoubleEntry; 
 	
 	/**
 	 * 独赢&双进
 	 */
-	@ExcelField(title="独赢&双进", align=2, sort=15)
+	@ExcelField(title="独赢&双进", align=2, sort=17)
     private String singleWinDoubleEntry;
 	
 	/**
 	 * 胜赔率
 	 */
-	@ExcelField(title="胜赔率", align=2, sort=16)
+	@ExcelField(title="胜赔率", align=2, sort=18)
     private String homeOdd;
 	
     /**
 	 * 平局赔率
 	 */
-	@ExcelField(title="平局赔率", align=2, sort=17)
+	@ExcelField(title="平局赔率", align=2, sort=19)
     private String pingOdd;
 	
     /**
 	 * 负赔率
 	 */
-	@ExcelField(title="负赔率", align=2, sort=18)
+	@ExcelField(title="负赔率", align=2, sort=20)
     private String guestOdd;
+	
+	/**
+	 * 联赛名称
+	 */
+	@ExcelField(title="联赛名称", align=2, sort=21)
+    private String leagueName;
 	
 	public String getRaceDate() {
 		return raceDate;
@@ -291,6 +309,38 @@ public class ScoreDataTwo {
 
 	public void setGuestOdd(String guestOdd) {
 		this.guestOdd = guestOdd;
+	}
+
+	
+	
+	public String getSizesBallsFirst() {
+		return sizesBallsFirst;
+	}
+
+
+	public void setSizesBallsFirst(String sizesBallsFirst) {
+		this.sizesBallsFirst = sizesBallsFirst;
+	}
+
+
+	public String getSizesBalls() {
+		return sizesBalls;
+	}
+
+
+	public void setSizesBalls(String sizesBalls) {
+		this.sizesBalls = sizesBalls;
+	}
+
+	
+	
+	public String getLeagueName() {
+		return leagueName;
+	}
+
+
+	public void setLeagueName(String leagueName) {
+		this.leagueName = leagueName;
 	}
 
 
