@@ -3,17 +3,23 @@ package com.shexd.Controller;
 import com.shexd.Entity.ScoreDataTwo;
 import com.shexd.util.DateUtils;
 import com.shexd.util.ExportExcel;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -37,6 +43,200 @@ public class ScoreDateController {
        }
    }
    
+   /**
+   *
+   * 导出Excel文件
+   * @param response
+   */
+  @RequestMapping("exportData")
+  public void exportData(HttpServletResponse response){
+      try {
+          String fileName ="Football Score"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+          List<ScoreDataTwo> scoreDataList =	getNewScoreDataList();                      
+          new ExportExcel(DateUtils.getDate("yyyy") + "Football Score", ScoreDataTwo.class,2).setDataList(scoreDataList).write(response, fileName).dispose();
+      } catch (Exception e) {
+      }
+  }
+   
+   
+   /**
+   *
+   * 获取图表数据
+   * @param response
+   */
+  @RequestMapping("printPicData")
+  public void printPicData(HttpServletResponse response){
+      try {
+          String fileName ="Football Score"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+          List<ScoreDataTwo> scoreDataList =	getNewScoreList();                      
+          int oneCount = 0;
+          int twoCount = 0;
+          int thirdCount = 0;
+          int fourCount = 0;
+          int fiveCount = 0;
+          int pingCount = 0;
+          int zeroCount = 0;
+          System.out.println("分类,1球,2球,3球,4球,5球,进局,零局");
+          Map<String,String> dataMap = new HashMap<String,String>();
+          for (int i = 0; i < scoreDataList.size(); i++) {
+        	  ScoreDataTwo tempData = scoreDataList.get(i);
+        	  String raceRound = tempData.getRaceRound();
+        	  String gdCount =  getGdCount(tempData);
+        	  if("1".equals(gdCount)){
+  				oneCount++;
+  			}else if("2".equals(gdCount)){
+  				twoCount++;
+  			}else if("3".equals(gdCount)){
+  				thirdCount++;
+  			}else if("4".equals(gdCount)){
+  				fourCount++;
+  			}else if("5".equals(gdCount)){
+  				fiveCount++;
+  			}else if("进局".equals(gdCount)){
+  				pingCount++;
+  			}else if("零局".equals(gdCount)){
+  				zeroCount++;
+  			}
+        	 
+        	String nextRaceRound = scoreDataList.get(i+1).getRaceRound();
+        	if(!raceRound.equals(nextRaceRound)){
+                dataMap.put(raceRound, oneCount + "," + twoCount + "," + thirdCount + "," + fourCount + "," + fiveCount + "," + pingCount + "," + zeroCount);		
+                System.out.println(dataMap);         
+        		oneCount = 0;
+                 twoCount = 0;
+                 thirdCount = 0;
+                 fourCount = 0;
+                 fiveCount = 0;
+                 pingCount = 0;
+                 zeroCount = 0;	
+    		}        	  
+          }
+/*          for(int i = 0; i < dataMap.size(); i++){
+        	  System.out.println(dataMap.get(i));
+          }*/
+          
+         // System.out.println("============");
+         //System.out.println(dataMap);                           
+      } catch (Exception e) {
+    	  //System.out.println(e.getMessage());
+      }
+      System.out.println("=========");
+  }
+   
+  /**
+  *
+  * 获取图表数据1
+  * @param response
+  */
+ @RequestMapping("printPicDataOne")
+ public void printPicDataOne(HttpServletResponse response){
+     try {
+         String fileName ="Football Score"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+         List<ScoreDataTwo> scoreDataList =	getNewScoreDataList();                      
+     
+         System.out.println("分类,双进,零封");
+         Map<String,String> dataMap = new HashMap<String,String>();                
+         StringBuffer sb = new StringBuffer();
+         for (int i = 0; i < scoreDataList.size(); i++) {
+       	  ScoreDataTwo tempData = scoreDataList.get(i);
+       	  String leagueName  = tempData.getLeagueName();
+       	  sb.append(leagueName).append(",");     	        	       	  
+         }
+         String[] splitTempData = sb.toString().split(",");
+         String str = StringUtils.EMPTY;
+         
+         for(String ln : splitTempData){
+        	 int index = str.indexOf(ln);
+        	 if(!(index >= 0)){
+        		 str+=ln+",";
+        	 }
+         }    
+         String[] lastSplitLn = str.split(",");
+         for(String lastStr: lastSplitLn){
+        	  int zeroCount = 0;
+		      int doubleCount = 0;
+        	 for (int i = 0; i < scoreDataList.size(); i++) {
+        		 ScoreDataTwo lastTempData = scoreDataList.get(i);
+        		 String lastLeagueName  = lastTempData.getLeagueName();
+        		 if(lastStr.equals(lastLeagueName)){
+        			if("零封".equals(lastTempData.getZeroSealDoubleEntry())){
+        				zeroCount++;
+        			}else if("双进".equals(lastTempData.getZeroSealDoubleEntry())){
+        				doubleCount++;
+        			}        		      
+        		 }
+        	 }
+        	 dataMap.put(lastStr, doubleCount + "," + zeroCount);
+         }       
+         Iterator iter = dataMap.entrySet().iterator();
+         while (iter.hasNext()) {
+         Map.Entry entry = (Map.Entry) iter.next();
+         Object key = entry.getKey();
+         Object val = entry.getValue();
+         System.out.println(key + "," + val);   
+         }            
+     } catch (Exception e) {
+     }
+ } 
+  
+ /**
+ *
+ * 获取图表数据2
+ * @param response
+ */
+@RequestMapping("printPicDataTwo")
+public void printPicDataTwo(HttpServletResponse response){
+    try {
+        String fileName ="Football Score"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+        List<ScoreDataTwo> scoreDataList =	getBallDataList();                     
+    
+        System.out.println("分类,比分");
+        Map<String,String> dataMap = new HashMap<String,String>();                
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < scoreDataList.size(); i++) {
+      	  ScoreDataTwo tempData = scoreDataList.get(i);
+      	  String fullCourtScore  = tempData.getFullCourtScore();
+      	  sb.append(fullCourtScore).append(",");     	        	       	  
+        }
+        String[] splitTempData = sb.toString().split(",");
+        String str = StringUtils.EMPTY;
+        
+        for(String ln : splitTempData){
+       	 int index = str.indexOf(ln);
+       	 if(!(index >= 0)){
+       		 str+=ln+",";
+       	 }
+        }    
+        String[] lastSplitLn = str.split(",");
+        for(String lastStr: lastSplitLn){
+       	  int zeroCount = 0;
+		  int doubleCount = 0;
+       	 for (int i = 0; i < scoreDataList.size(); i++) {
+       		 ScoreDataTwo lastTempData = scoreDataList.get(i);
+       		 String lastLeagueName  = lastTempData.getLeagueName();
+       		 if(lastStr.equals(lastLeagueName)){
+       			if("零封".equals(lastTempData.getZeroSealDoubleEntry())){
+       				zeroCount++;
+       			}else if("双进".equals(lastTempData.getZeroSealDoubleEntry())){
+       				doubleCount++;
+       			}        		      
+       		 }
+       	 }
+       	 dataMap.put(lastStr, doubleCount + "," + zeroCount);
+        }       
+        Iterator iter = dataMap.entrySet().iterator();
+        while (iter.hasNext()) {
+        Map.Entry entry = (Map.Entry) iter.next();
+        Object key = entry.getKey();
+        Object val = entry.getValue();
+        System.out.println(key + "," + val);   
+        }            
+    } catch (Exception e) {
+    }
+} 
+ 
+  
+  
    public static List<ScoreDataTwo> getScoreList() {
 	   String pathname = "F:\\coco\\ScoreData.txt";
        List<ScoreDataTwo> scoreList=new ArrayList<>();
@@ -116,6 +316,85 @@ public class ScoreDateController {
            	   score.setSizesBalls(splitStr[12]);
            	   score.setLeagueName(splitStr[13]);
            	   scoreList.add(score);
+           }  
+           System.out.println("count==="+count);
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+       return scoreList;      
+   }
+     
+   
+   public static List<ScoreDataTwo> getNewScoreDataList() {
+	   String pathname = "F:\\coco\\ScoreData.txt";
+       List<ScoreDataTwo> scoreList=new ArrayList<>();
+       int count = 0;
+       
+       try (FileReader reader = new FileReader(pathname);
+            BufferedReader br = new BufferedReader(reader)
+       ) {
+           String line;            
+           while ((line = br.readLine()) != null) {
+        	   count++;
+        	   System.out.println(count);
+        	   ScoreDataTwo score = new ScoreDataTwo();          	          		            		
+           	   String[] splitStr = line.trim().split(",");
+           	   if(!splitStr[0].startsWith("@")){
+           		score.setRaceDate(splitStr[0]);
+           		score.setRaceTime(splitStr[1]);
+           		score.setLeagueName(splitStr[2]);
+           		score.setHomeTeam(splitStr[3]);
+           		score.setGueatTeam(splitStr[6]);
+           		score.setHalfCourtScore(splitStr[4]);
+           		score.setFullCourtScore(splitStr[5]);
+           	   score.setGdCount(getGdCount(score));
+           	   score.setWinningLosingTheGame(getWinningLosingTheGame(score));
+           	   score.setWinningLosingTheGameOdd(getWinningLosingTheGameOdd(score));
+           	   score.setGoalsResult(getGoalsResult(score));
+           	   score.setHalfFullResult(getHalfFullResult(score));
+           	   score.setHomeGuestWin(getHomeGuestWin(score));
+           	   score.setZeroSealDoubleEntry(getZeroSealDoubleEntry(score));
+           	   score.setSingleWinDoubleEntry(getSingleWinDoubleEntry(score)); 
+           	   scoreList.add(score);
+           	   }          	   
+           }  
+           System.out.println("count==="+count);
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+       return scoreList;      
+   }
+   
+   
+   public static List<ScoreDataTwo> getBallDataList() {
+	   String pathname = "F:\\coco\\ScoreData.txt";
+       List<ScoreDataTwo> scoreList=new ArrayList<>();
+       int count = 0;
+       
+       try (FileReader reader = new FileReader(pathname);
+            BufferedReader br = new BufferedReader(reader)
+       ) {
+           String line;            
+           while ((line = br.readLine()) != null) {
+        	   count++;
+        	   System.out.println(count);
+        	   ScoreDataTwo score = new ScoreDataTwo();          	          		            		
+           	   String[] splitStr = line.trim().split(",");
+           		score.setRaceRound(splitStr[0]);
+           		score.setHomeTeam(splitStr[1]);
+           		score.setGueatTeam(splitStr[4]);
+           		score.setHalfCourtScore(splitStr[2]);
+           		score.setFullCourtScore(splitStr[3]);
+           	   score.setGdCount(getGdCount(score));
+           	   score.setWinningLosingTheGame(getWinningLosingTheGame(score));
+           	   score.setWinningLosingTheGameOdd(getWinningLosingTheGameOdd(score));
+           	   score.setGoalsResult(getGoalsResult(score));
+           	   score.setHalfFullResult(getHalfFullResult(score));
+           	   score.setHomeGuestWin(getHomeGuestWin(score));
+           	   score.setZeroSealDoubleEntry(getZeroSealDoubleEntry(score));
+           	   score.setSingleWinDoubleEntry(getSingleWinDoubleEntry(score)); 
+           	   scoreList.add(score);
+           	         	   
            }  
            System.out.println("count==="+count);
        } catch (IOException e) {
