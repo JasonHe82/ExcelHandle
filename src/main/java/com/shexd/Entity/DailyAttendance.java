@@ -80,6 +80,20 @@ public class DailyAttendance {
 	@ExcelField(title="加班分钟统计", align=2, sort=11)
 	private String overtimeStatisticsSecond;	
 
+    /**
+	 * 迟到小时统计
+	 * 
+	 */
+	@ExcelField(title="迟到小时统计", align=2, sort=12)
+    private String latenessStatisticsHour;
+	
+	/**
+	 * 迟到分钟统计
+	 */
+	@ExcelField(title="迟到分钟统计", align=2, sort=13)
+	private String latenessStatisticsSecond;
+	
+	
 	public String getCardNumber() {
 		return cardNumber;
 	}
@@ -168,6 +182,22 @@ public class DailyAttendance {
 
 	public void setAttendanceTime(String attendanceTime) {
 		this.attendanceTime = attendanceTime;
+	}
+
+	public String getLatenessStatisticsHour() {
+		return latenessStatisticsHour;
+	}
+
+	public void setLatenessStatisticsHour(String latenessStatisticsHour) {
+		this.latenessStatisticsHour = latenessStatisticsHour;
+	}
+
+	public String getLatenessStatisticsSecond() {
+		return latenessStatisticsSecond;
+	}
+
+	public void setLatenessStatisticsSecond(String latenessStatisticsSecond) {
+		this.latenessStatisticsSecond = latenessStatisticsSecond;
 	}
 	
 	

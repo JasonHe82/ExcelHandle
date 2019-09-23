@@ -39,10 +39,13 @@ public class DailyAttendanceController {
     */
    @RequestMapping("exportDailyAttendance")
    public void exportDailyAttendance(HttpServletResponse response){
-       try {
-           String fileName ="Daily Attendance"+ DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
-           List<DailyAttendance> dailyAttendanceList =	getDailyAttendance();                      
-           new ExportExcel(DateUtils.getDate("yyyy") + "Daily Attendance", DailyAttendance.class,2).setDataList(dailyAttendanceList).write(response, fileName).dispose();
+       try {          
+           List<DailyAttendance> dailyAttendanceList =	getDailyAttendance();
+           DailyAttendance da = dailyAttendanceList.get(0);
+           String attendanceDate = da.getAttendanceDate();
+           String[] tempDate = attendanceDate.split("/");
+           String fileName =da.getUmNUmber() + "_" + DateUtils.getDate("yyyy") + "-" + tempDate[1] + "月份打卡记录"+".xlsx";
+           new ExportExcel(da.getUmNUmber()+ "_" + DateUtils.getDate("yyyy") + "-" + tempDate[1] + "月份打卡记录", DailyAttendance.class,2).setDataList(dailyAttendanceList).write(response, fileName).dispose();
        } catch (Exception e) {
        }
    }
@@ -72,11 +75,15 @@ public class DailyAttendanceController {
 	           	   dailyAttendance.setLatenessStatistics(getLatenessStatistics(dailyAttendance));
 	           	   dailyAttendance.setOvertimeStatisticsHour(getOvertimeStatistics(dailyAttendance, 1));
 	           	   dailyAttendance.setOvertimeStatisticsSecond(getOvertimeStatistics(dailyAttendance, 2));
+	           	   dailyAttendance.setLatenessStatisticsHour(getLatenessStatisticsTime(dailyAttendance, 1));
+	           	   dailyAttendance.setLatenessStatisticsSecond(getLatenessStatisticsTime(dailyAttendance, 2));
+	           	   
+	           	   
 	           	   dailyAttendanceList.add(dailyAttendance);
 	           	//53D14247,2019/7/1,18:51, NULL ,601039,hezhipeng,刷卡开门,成功
 	           	   
 	           }  
-	           System.out.println("count==="+count);
+	           //System.out.println("count==="+count);
 	       } catch (IOException e) {
 	           e.printStackTrace();
 	       }
@@ -154,33 +161,76 @@ public class DailyAttendanceController {
 		SimpleDateFormat format = new SimpleDateFormat("HH:ss");
 		Date attendanceTimeDate = new Date();
 		Date morningDate = new Date();
-		//Date afternoonDate = new Date();
+		Date afternoonDate = new Date();
+		Date overDate = new Date();
 		try {
 			attendanceTimeDate = format.parse(attendanceTime);			
 			morningDate = format.parse("09:00");
-			//afternoonDate= format.parse("18:00");
+			afternoonDate= format.parse("18:00");
+			overDate = format.parse("20:00");
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		
 		long attendanceTimeSecond = attendanceTimeDate.getTime();
 		long morningDateSecond = morningDate.getTime();
-		//long afternoonDateSecond = afternoonDate.getTime();
+		long afternoonDateSecond = afternoonDate.getTime();
+		long overDateSecond = overDate.getTime();
 		
-		if(attendanceTimeSecond < morningDateSecond){
+		
+		if(attendanceTimeSecond < morningDateSecond || (attendanceTimeSecond > afternoonDateSecond && attendanceTimeSecond < overDateSecond)){
 			latenessStatistics = "正常";			
+		}else if(attendanceTimeSecond > morningDateSecond && attendanceTimeSecond < afternoonDateSecond){
+			latenessStatistics = "迟到";
+		}else if(attendanceTimeSecond > overDateSecond){
+			latenessStatistics = "加班";
 		}
 		return latenessStatistics;
 	}  
 	
+	/**
+	 * 获取迟到情况
+	 * @param dailyAttendance
+	 * @return
+	 */
+	private static String getLatenessStatisticsTime(DailyAttendance dailyAttendance,int flag) {
+		String latenessTimeStatistics = StringUtils.EMPTY;
+		String attendanceTime = dailyAttendance.getAttendanceTime();
+		
+		SimpleDateFormat format = new SimpleDateFormat("HH:ss");
+		Date date1 = new Date();
+		Date morningDate = new Date();
+		Date afternoonDate = new Date();
+		try {
+			date1 = format.parse(attendanceTime);			
+			morningDate = format.parse("09:00");
+			afternoonDate  = format.parse("12:00");
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		long beginMillisecond = date1.getTime();
+		long morningDateSecond = morningDate.getTime();
+		long afternoonDateSecond = afternoonDate.getTime();
+		
+		if(beginMillisecond > morningDateSecond && beginMillisecond < afternoonDateSecond){
+			if(flag == 1){
+				latenessTimeStatistics = String.valueOf(((beginMillisecond - morningDateSecond) / (60 * 60 * 1000)) % 24);
+			}else{
+				latenessTimeStatistics = String.valueOf(((beginMillisecond - morningDateSecond) / 1000) % 60);
+			}			
+		}
+		return latenessTimeStatistics;	
+	}
 	
-	public static void main(String[] args) {
+	
+/*	public static void main(String[] args) {
 		DailyAttendance dailyAttendance = new DailyAttendance();
 		dailyAttendance.setAttendanceTime("21:45");
 		String latenessStatisticsHour = getOvertimeStatistics(dailyAttendance,1);
 		String latenessStatisticsSec = getOvertimeStatistics(dailyAttendance,2);
 		System.out.println(latenessStatisticsHour + "===" + latenessStatisticsSec);
-	}
+	}*/
     
 }
 
