@@ -41,14 +41,46 @@ public class DailyAttendanceController {
    public void exportDailyAttendance(HttpServletResponse response){
        try {          
            List<DailyAttendance> dailyAttendanceList =	getDailyAttendance();
+           int sumHour = 0;
+           int sumMin = 0;
+           sumHour = getSumTime(dailyAttendanceList,1);
+           sumMin = getSumTime(dailyAttendanceList,2);
+           System.out.println(sumHour + "-" + sumMin + "-" + (sumMin/60));
+           
+           String sumTime = String.valueOf(sumHour + (sumMin/60)) + "小时";
+           
            DailyAttendance da = dailyAttendanceList.get(0);
            String attendanceDate = da.getAttendanceDate();
            String[] tempDate = attendanceDate.split("/");
            String fileName =da.getUmNUmber() + "_" + DateUtils.getDate("yyyy") + "-" + tempDate[1] + "月份打卡记录"+".xlsx";
-           new ExportExcel(da.getUmNUmber()+ "_" + DateUtils.getDate("yyyy") + "-" + tempDate[1] + "月份打卡记录", DailyAttendance.class,2).setDataList(dailyAttendanceList).write(response, fileName).dispose();
+           new ExportExcel(da.getUmNUmber()+ "_" + DateUtils.getDate("yyyy") + "-" + tempDate[1] + "月份打卡记录-" + sumTime, DailyAttendance.class,2).setDataList(dailyAttendanceList).write(response, fileName).dispose();
        } catch (Exception e) {
        }
    }
+
+	private int getSumTime(List<DailyAttendance> dailyAttendanceList, int flag) {
+		int sumTime = 0;
+        
+        for(DailyAttendance dailyAttendance : dailyAttendanceList) {
+        	int overtimeStatisticsHour = 0;
+        	int overtimeStatisticsSecond = 0;
+        	
+        	if(StringUtils.isNotEmpty(dailyAttendance.getOvertimeStatisticsHour())){
+        		overtimeStatisticsHour = Integer.valueOf(dailyAttendance.getOvertimeStatisticsHour());	
+        	}
+        	if(StringUtils.isNotEmpty(dailyAttendance.getOvertimeStatisticsSecond())){
+        		overtimeStatisticsSecond = Integer.valueOf(dailyAttendance.getOvertimeStatisticsSecond());	
+        	}
+        	
+        	
+        	if(flag == 1){
+        		sumTime += overtimeStatisticsHour;
+        	}else{
+        		sumTime += overtimeStatisticsSecond;
+        	}	
+        }		
+		return sumTime;
+	}
 
 	private List<DailyAttendance> getDailyAttendance() {
 		String pathname = "F:\\coco\\ScoreData.txt";
