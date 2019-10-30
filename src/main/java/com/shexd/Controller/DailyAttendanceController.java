@@ -41,19 +41,26 @@ public class DailyAttendanceController {
    public void exportDailyAttendance(HttpServletResponse response){
        try {          
            List<DailyAttendance> dailyAttendanceList =	getDailyAttendance();
-           int sumHour = 0;
-           int sumMin = 0;
-           sumHour = getSumTime(dailyAttendanceList,1);
-           sumMin = getSumTime(dailyAttendanceList,2);
-           System.out.println(sumHour + "-" + sumMin + "-" + (sumMin/60));
+           int overSumHour = 0;
+           int overSumMin = 0;           
+           int lateSumHour = 0;
+           int lateSumMin = 0;
+           overSumHour = getSumTime(dailyAttendanceList,1);
+           overSumMin = getSumTime(dailyAttendanceList,2);
+           lateSumHour = getSumTime(dailyAttendanceList,3);
+           lateSumMin = getSumTime(dailyAttendanceList,4);
            
-           String sumTime = String.valueOf(sumHour + (sumMin/60)) + "小时";
+           System.out.println(overSumHour + "-" + overSumMin + "-" + (overSumMin/60));
+           
+           String overSumTime = "加班：" + String.valueOf(overSumHour + (overSumMin/60)) + "小时";
+           String lateSumTime = "迟到：" + String.valueOf(lateSumHour + (lateSumMin/60)) + "小时";
+           String sumTime = "总计：" + String.valueOf((overSumHour + (overSumMin/60)) - (lateSumHour + (lateSumMin/60))) + "小时";;
            
            DailyAttendance da = dailyAttendanceList.get(0);
            String attendanceDate = da.getAttendanceDate();
            String[] tempDate = attendanceDate.split("/");
            String fileName =da.getUmNUmber() + "_" + DateUtils.getDate("yyyy") + "-" + tempDate[1] + "月份打卡记录"+".xlsx";
-           new ExportExcel(da.getUmNUmber()+ "_" + DateUtils.getDate("yyyy") + "-" + tempDate[1] + "月份打卡记录-" + sumTime, DailyAttendance.class,2).setDataList(dailyAttendanceList).write(response, fileName).dispose();
+           new ExportExcel(da.getUmNUmber()+ "_" + DateUtils.getDate("yyyy") + "-" + tempDate[1] + "月份打卡记录-" + overSumTime + "-" + lateSumTime + "-" + sumTime, DailyAttendance.class,2).setDataList(dailyAttendanceList).write(response, fileName).dispose();
        } catch (Exception e) {
        }
    }
@@ -64,6 +71,9 @@ public class DailyAttendanceController {
         for(DailyAttendance dailyAttendance : dailyAttendanceList) {
         	int overtimeStatisticsHour = 0;
         	int overtimeStatisticsSecond = 0;
+        	int latenessStatisticsHour = 0;
+        	int latenessStatisticsSecond = 0;
+        	
         	
         	if(StringUtils.isNotEmpty(dailyAttendance.getOvertimeStatisticsHour())){
         		overtimeStatisticsHour = Integer.valueOf(dailyAttendance.getOvertimeStatisticsHour());	
@@ -72,18 +82,28 @@ public class DailyAttendanceController {
         		overtimeStatisticsSecond = Integer.valueOf(dailyAttendance.getOvertimeStatisticsSecond());	
         	}
         	
-        	
+        	if(StringUtils.isNotEmpty(dailyAttendance.getLatenessStatisticsHour())){
+        		latenessStatisticsHour = Integer.valueOf(dailyAttendance.getLatenessStatisticsHour());	
+        	}
+        	if(StringUtils.isNotEmpty(dailyAttendance.getLatenessStatisticsSecond())){
+        		latenessStatisticsSecond = Integer.valueOf(dailyAttendance.getLatenessStatisticsSecond());	
+        	}
+        	       	
         	if(flag == 1){
         		sumTime += overtimeStatisticsHour;
-        	}else{
+        	}else if(flag == 2){
         		sumTime += overtimeStatisticsSecond;
+        	}else if(flag == 3){
+        		sumTime += latenessStatisticsHour;
+        	}else if(flag == 4){
+        		sumTime += latenessStatisticsSecond;
         	}	
         }		
 		return sumTime;
 	}
 
 	private List<DailyAttendance> getDailyAttendance() {
-		String pathname = "F:\\coco\\ScoreData.txt";
+		String pathname = "E:\\coco\\ScoreData.txt";
 	       List<DailyAttendance> dailyAttendanceList=new ArrayList<>();
 	       int count = 0;	       
 	       try (FileReader reader = new FileReader(pathname);
