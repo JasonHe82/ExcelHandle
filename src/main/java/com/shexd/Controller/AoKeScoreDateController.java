@@ -46,7 +46,7 @@ public class AoKeScoreDateController {
    }
    
     public static List<AoKeScoreData> readWriteFile() {
-    	String pathname = "F:\\coco\\ScoreData.txt";
+    	String pathname = "E:\\coco\\ScoreData.txt";
         List<AoKeScoreData> scoreDataList=new ArrayList<>();
         int count = 0;
         int erroCount = 0;

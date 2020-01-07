@@ -184,7 +184,7 @@ public class DailyAttendanceController {
 		Date date2 = new Date();
 		try {
 			date1 = format.parse(attendanceTime);			
-			date2 = format.parse("20:00");
+			date2 = format.parse("19:00");
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -219,7 +219,7 @@ public class DailyAttendanceController {
 			attendanceTimeDate = format.parse(attendanceTime);			
 			morningDate = format.parse("09:00");
 			afternoonDate= format.parse("18:00");
-			overDate = format.parse("20:00");
+			overDate = format.parse("19:00");
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
